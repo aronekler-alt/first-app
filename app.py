@@ -9,3 +9,7 @@ if nev:
 
 szam = st.slider("Válassz számot:", 0, 10000)
 st.write("A szam duplaja: ", szam*2)
+
+szam1 = st.number_input("Szám1: ")
+szam2 = st.number_input("Szám2: ")
+st.write("A szamok összege: ", szam1+szam2)
