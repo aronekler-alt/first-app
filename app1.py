@@ -1,19 +1,23 @@
-
 import streamlit as st
+import random
 
-st.title("csapatod pontjai")
+st.title("🎲 Találd ki a számot!")
 
-sajatgol = st.number_input("mennyi gólt rugott a csapatod?", min_value=1, step=1)
-ellenfelgol = st.number_input("mennyi gólt rugott az ellenfél csapata?", min_value=1, step=1)
+# Csak egyszer generáljon számot
+if "szam" not in st.session_state:
+    st.session_state.szam = random.randint(1, 100)
 
+tipp = st.number_input(
+    "Adj meg egy számot 1 és 100 között:",
+    min_value=1,
+    max_value=100,
+    step=1
+)
 
-pont = 0
-
-if sajatgol > ellenfelgol:
-    pont = 3
-elif sajatgol < ellenfelgol:  
-    pont = 0
-elif sajatgol == ellenfelgol:  
-    pont = 1
-
-st.write(f"Pont: {pont}")
+if st.button("Tippelés"):
+    if tipp < st.session_state.szam:
+        st.warning("📉 Túl kicsi!")
+    elif tipp > st.session_state.szam:
+        st.warning("📈 Túl nagy!")
+    else:
+        st.success("🎉 Gratulálok! Eltaláltad!")
