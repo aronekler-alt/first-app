@@ -1,24 +1,31 @@
 import streamlit as st
-import json
+from google import genai
 
-st.title("Naplóm")
-if "bejegyzesek" not in st.session_state:
-    st.session_state.bejegyzesek = []
+client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
-# Korábbi napló betöltése
-feltoltott = st.file_uploader("Napló betöltése", type="json")
-if feltoltott is not None:
-    st.session_state.bejegyzesek = json.load(feltoltott)
+st.title("Az én chatbotom")
 
-# Új bejegyzés
-uj = st.text_input("Mi történt ma?")
-if st.button("Hozzáadás"):
-    st.session_state.bejegyzesek.append(uj)
+if "uzenetek" not in st.session_state:
+    st.session_state.uzenetek = []
+    
+# korábbi üzenetek kirajzolása
+for uz in st.session_state.uzenetek:
+    with st.chat_message(uz["role"]):
+        st.write(uz["text"])
 
-# Megjelenítés
-for b in st.session_state.bejegyzesek:
-    st.write("- " + b)
+kerdes = st.chat_input("Kérdezz valamit!")
 
-# Mentés fájlba
-adat = json.dumps(st.session_state.bejegyzesek)
-st.download_button("Napló mentése", adat, "naplo.json")
+if kerdes:
+    st.session_state.uzenetek.append({"role": "user", "text": kerdes})
+    with st.chat_message("user"):
+        st.write(kerdes)
+
+    def valaszol():
+        for chunk in client.models.generate_content_stream(
+                model="gemini-3.6-flash", contents=kerdes):
+            yield chunk.text
+
+    
+    with st.chat_message("assistant"):
+        teljes =st.write_stream(valaszol())
+    st.session_state.uzenetek.append({"role": "assistant", "text": teljes})
